@@ -27,15 +27,15 @@ const http = require("http");
 // ==========================================================
 
 const TOKEN = process.env.DISCORD_TOKEN;
-let DATA_DIR = process.env.DATA_DIR && typeof process.env.DATA_DIR === 'string' ? process.env.DATA_DIR : /app/data;
+let DATA_DIR = process.env.DATA_DIR && typeof process.env.DATA_DIR === 'string' ? process.env.DATA_DIR : __dirname;
 
 try {
     if (fs.existsSync(DATA_DIR) && !fs.lstatSync(DATA_DIR).isDirectory()) {
         console.warn(`⚠️ Ścieżka ${DATA_DIR} jest plikiem, a nie katalogiem! Przełączam na katalog bieżący.`);
-        DATA_DIR = /app/data;
+        DATA_DIR = __dirname;
     }
 } catch (e) {
-    DATA_DIR = /app/data;
+    DATA_DIR = __dirname;
 }
 
 if (!fs.existsSync(DATA_DIR)) {
@@ -155,22 +155,33 @@ const defaultGuildConfig = {
 const claimedTickets = new Map();
 
 // ==========================================================
-// BAZA DANYCH JSON (MULTI-GUILD)
+// BAZA DANYCH JSON (MULTI-GUILD) + SPRAWDZANIE PLIKU
 // ==========================================================
 
 let globalConfig = {};
 
 function loadGlobalConfig() {
+    console.log(`📂 Sprawdzam plik konfiguracyjny w ścieżce: ${CONFIG_FILE}`);
+
     if (!fs.existsSync(CONFIG_FILE)) {
+        console.log(`⚠️ Nie znaleziono pliku konfiguracyjnego! Tworzę nową, domyślną konfigurację.`);
         fs.writeFileSync(CONFIG_FILE, JSON.stringify({}, null, 4), "utf8");
         return {};
     }
 
     try {
-        const data = JSON.parse(fs.readFileSync(CONFIG_FILE, "utf8"));
-        return typeof data === "object" && data !== null ? data : {};
+        const fileContent = fs.readFileSync(CONFIG_FILE, "utf8");
+        const data = JSON.parse(fileContent);
+        
+        if (typeof data === "object" && data !== null) {
+            console.log(`✅ Znaleziono i pomyślnie wczytano plik konfiguracyjny! Skonfigurowane serwery: ${Object.keys(data).length}`);
+            return data;
+        } else {
+            console.log(`⚠️ Plik konfiguracyjny był pusty lub uszkodzony. Resetuję konfigurację.`);
+            return {};
+        }
     } catch (error) {
-        console.error("❌ Błąd odczytu pliku konfiguracyjnego:", error);
+        console.error("❌ Błąd podczas odczytu pliku konfiguracyjnego:", error);
         return {};
     }
 }
