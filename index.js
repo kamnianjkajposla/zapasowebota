@@ -27,7 +27,7 @@ const http = require("http");
 // ==========================================================
 
 const TOKEN = process.env.DISCORD_TOKEN;
-let DATA_DIR = process.env.DATA_DIR && typeof process.env.DATA_DIR === 'string' ? process.env.DATA_DIR : __dirname;
+let DATA_DIR = process.env.DATA_DIR && typeof process.env.DATA_DIR === 'string' ? process.env.DATA_DIR : /app/data;
 
 try {
     if (fs.existsSync(DATA_DIR) && !fs.lstatSync(DATA_DIR).isDirectory()) {
