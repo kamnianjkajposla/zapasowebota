@@ -32,10 +32,10 @@ let DATA_DIR = process.env.DATA_DIR && typeof process.env.DATA_DIR === 'string' 
 try {
     if (fs.existsSync(DATA_DIR) && !fs.lstatSync(DATA_DIR).isDirectory()) {
         console.warn(`⚠️ Ścieżka ${DATA_DIR} jest plikiem, a nie katalogiem! Przełączam na katalog bieżący.`);
-        DATA_DIR = __dirname;
+        DATA_DIR = /app/data;
     }
 } catch (e) {
-    DATA_DIR = __dirname;
+    DATA_DIR = /app/data;
 }
 
 if (!fs.existsSync(DATA_DIR)) {
